@@ -1,0 +1,3 @@
+[submodule "dicebox"]
+	path = dicebox
+	url = git@github.com:shapeandshare/dicebox.git

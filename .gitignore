@@ -102,3 +102,9 @@ ENV/
 
 # idea ide
 .idea
+
+venv/
+app/lib
+app/tmp
+app/weights
+app/logs

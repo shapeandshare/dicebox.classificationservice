@@ -32,9 +32,9 @@ logging.basicConfig(
 
 
 ###############################################################################
-# Create the network.
+# Create the network. (Create FSC, disabling data indexing)
 ###############################################################################
-network = Network(config.NN_PARAM_CHOICES)
+network = Network(config.NN_PARAM_CHOICES, True, True)
 
 
 ###############################################################################

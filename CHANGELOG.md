@@ -8,3 +8,8 @@ Change Log
 * Updated Copyright dates
 * Updated pip managed dependencies to the latest
 * Added additional exclusions to the gitignore file.
+* Categories are now loaded from the weights directory along with the weights
+* Added comments to code base
+* Updated html response codes where incorrect
+* Removed from overly broad exception handling
+

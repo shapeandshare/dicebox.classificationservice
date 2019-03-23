@@ -13,3 +13,7 @@ Change Log
 * Updated html response codes where incorrect
 * Removed from overly broad exception handling
 
+03.23.2019
+----------
+* Updated route /api/categories -> /api/category
+* Updated Core Libraries to the latest

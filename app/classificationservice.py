@@ -88,7 +88,7 @@ def get_classification(image_data):
 ###############################################################################
 # Provides categories for client consumption
 ###############################################################################
-@app.route('/api/categories', methods=['GET'])
+@app.route('/api/category', methods=['GET'])
 def make_api_categorymap_public():
     if request.headers['API-ACCESS-KEY'] != config.API_ACCESS_KEY:
         abort(403)

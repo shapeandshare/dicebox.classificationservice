@@ -10,37 +10,57 @@
 ###############################################################################
 # Dependencies
 ###############################################################################
-import lib.docker_config as config
 from flask import Flask, jsonify, request, make_response, abort
 from flask_cors import CORS, cross_origin
 import base64
-from lib.network import Network
 import logging
 import json
+import os
+import errno
+import dicebox.docker_config
+import dicebox.network
+
+# Config
+config_file = './dicebox.config'
+CONFIG = dicebox.docker_config.DockerConfig(config_file)
+
+
+###############################################################################
+# Allows for easy directory structure creation
+# https://stackoverflow.com/questions/273192/how-can-i-create-a-directory-if-it-does-not-exist
+###############################################################################
+def make_sure_path_exists(path):
+    try:
+        if os.path.exists(path) is False:
+            os.makedirs(path)
+    except OSError as exception:
+        if exception.errno != errno.EEXIST:
+            raise
 
 
 ###############################################################################
 # Setup logging.
 ###############################################################################
+make_sure_path_exists(CONFIG.LOGS_DIR)
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%m/%d/%Y %I:%M:%S %p',
     level=logging.DEBUG,
     filemode='w',
-    filename="%s/classificationservice.log" % config.LOGS_DIR
+    filename="%s/classificationservice.%s.log" % (CONFIG.LOGS_DIR, os.uname()[1])
 )
 
 
 ###############################################################################
 # Create the network. (Create FSC, disabling data indexing)
 ###############################################################################
-network = Network(config.NN_PARAM_CHOICES, True, True)
+network = dicebox.network.Network(CONFIG.NN_PARAM_CHOICES, True, True, config_file)
 
 
 ###############################################################################
 # Load categories for the model
 ###############################################################################
-with open('%s/category_map.json' % config.WEIGHTS_DIR) as data_file:
+with open('%s/category_map.json' % CONFIG.WEIGHTS_DIR) as data_file:
     jdata = json.load(data_file)
 server_category_map = {}
 for d in jdata:
@@ -64,7 +84,7 @@ cors = CORS(app, resources={r"/api/*": {"origins": "http://localhost:*"}})
 def get_classification(image_data):
     try:
         network.create_lonestar(create_model=True,
-                                weights_filename="%s/%s" % (config.WEIGHTS_DIR, config.MODEL_WEIGHTS_FILENAME))
+                                weights_filename="%s/%s" % (CONFIG.WEIGHTS_DIR, CONFIG.MODEL_WEIGHTS_FILENAME))
     except:
         logging.error('Error summoning lonestar')
         return -1
@@ -90,9 +110,9 @@ def get_classification(image_data):
 ###############################################################################
 @app.route('/api/category', methods=['GET'])
 def make_api_categorymap_public():
-    if request.headers['API-ACCESS-KEY'] != config.API_ACCESS_KEY:
+    if request.headers['API-ACCESS-KEY'] != CONFIG.API_ACCESS_KEY:
         abort(403)
-    if request.headers['API-VERSION'] != config.API_VERSION:
+    if request.headers['API-VERSION'] != CONFIG.API_VERSION:
         abort(400)
 
     return make_response(jsonify({'category_map': server_category_map}), 200)
@@ -103,9 +123,9 @@ def make_api_categorymap_public():
 ###############################################################################
 @app.route('/api/classify', methods=['POST'])
 def make_api_get_classify_public():
-    if request.headers['API-ACCESS-KEY'] != config.API_ACCESS_KEY:
+    if request.headers['API-ACCESS-KEY'] != CONFIG.API_ACCESS_KEY:
         abort(403)
-    if request.headers['API-VERSION'] != config.API_VERSION:
+    if request.headers['API-VERSION'] != CONFIG.API_VERSION:
         abort(400)
     if not request.json:
         abort(400)
@@ -124,7 +144,7 @@ def make_api_get_classify_public():
 ###############################################################################
 @app.route('/api/version', methods=['GET'])
 def make_api_version_public():
-    return make_response(jsonify({'version':  str(config.API_VERSION)}), 200)
+    return make_response(jsonify({'version':  str(CONFIG.API_VERSION)}), 200)
 
 
 ###############################################################################
@@ -149,4 +169,4 @@ def not_found(error):
 ###############################################################################
 if __name__ == '__main__':
     logging.debug('starting flask app')
-    app.run(debug=config.FLASK_DEBUG, host=config.LISTENING_HOST, threaded=True)
+    app.run(debug=CONFIG.FLASK_DEBUG, host=CONFIG.LISTENING_HOST, threaded=True)

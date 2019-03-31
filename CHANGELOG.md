@@ -17,3 +17,8 @@ Change Log
 ----------
 * Updated route /api/categories -> /api/category
 * Updated Core Libraries to the latest
+
+03.30.2019
+----------
+* Updated to the latest core libraries and refactored to support the change
+* Updated docker build to account for new directory structure

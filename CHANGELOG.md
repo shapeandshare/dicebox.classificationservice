@@ -22,3 +22,7 @@ Change Log
 ----------
 * Updated to the latest core libraries and refactored to support the change
 * Updated docker build to account for new directory structure
+
+04.06.2019
+----------
+* Refactored to support namespace changes in the core libraries.

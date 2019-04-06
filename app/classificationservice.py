@@ -17,12 +17,12 @@ import logging
 import json
 import os
 import errno
-import dicebox.docker_config
-import dicebox.network
+from dicebox.config.dicebox_config import DiceboxConfig
+from dicebox.dicebox_network import DiceboxNetwork
 
 # Config
 config_file = './dicebox.config'
-CONFIG = dicebox.docker_config.DockerConfig(config_file)
+CONFIG = DiceboxConfig(config_file)
 
 
 ###############################################################################
@@ -54,7 +54,7 @@ logging.basicConfig(
 ###############################################################################
 # Create the network. (Create FSC, disabling data indexing)
 ###############################################################################
-network = dicebox.network.Network(CONFIG.NN_PARAM_CHOICES, True, True, config_file)
+network = DiceboxNetwork(CONFIG.NN_PARAM_CHOICES, True, True, config_file)
 
 
 ###############################################################################
@@ -90,7 +90,7 @@ def get_classification(image_data):
         return -1
 
     classification = network.classify(image_data)
-    logging.info("classification: (%s)" % classification)
+    logging.info("classification: (%s)", classification)
     return classification[0]
 
 # We need more specificity before we start catching stuff here, otherwise this
